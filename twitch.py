@@ -1540,9 +1540,10 @@ class Twitch:
                         if (
                             "message" in error_dict
                             and error_dict["message"] in (
-                                "service error",
+                                # "service error",
                                 "service unavailable",
                                 "service timeout",
+                                "context deadline exceeded",
                             )
                         ):
                             force_retry = True
@@ -1560,8 +1561,7 @@ class Twitch:
         merged = {}
         for key in set(chain(primary_data.keys(), secondary_data.keys())):
             in_primary = key in primary_data
-            in_secondary = key in secondary_data
-            if in_primary and in_secondary:
+            if in_primary and key in secondary_data:
                 vp = primary_data[key]
                 vs = secondary_data[key]
                 if not isinstance(vp, type(vs)) or not isinstance(vs, type(vp)):
@@ -1695,17 +1695,19 @@ class Twitch:
         response = await self.gql_request(
             GQL_OPERATIONS["GameDirectory"].with_variables({
                 "limit": limit,
-                "name": game.name,
+                "slug": game.slug,
                 "options": {
                     "includeRestricted": ["SUB_ONLY_LIVE"],
-                    # "tags": [DROPS_ENABLED_TAG],
+                    "systemFilters": ["DROPS_ENABLED"],
                 },
             })
         )
-        return [
-            Channel.from_directory(self, stream_channel_data["node"])
-            for stream_channel_data in response["data"]["game"]["streams"]["edges"]
-        ]
+        if "game" in response["data"]:
+            return [
+                Channel.from_directory(self, stream_channel_data["node"], drops_enabled=True)
+                for stream_channel_data in response["data"]["game"]["streams"]["edges"]
+            ]
+        return []
 
     async def claim_points(self, channel_id: str | int, claim_id: str) -> None:
         await self.gql_request(

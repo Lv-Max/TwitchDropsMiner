@@ -47,7 +47,28 @@ def _resource_path(relative_path: Path | str) -> Path:
         base_path = WORKING_DIR
     return base_path.joinpath(relative_path)
 
-
+def _merge_vars(base_vars: JsonType, vars: JsonType) -> None:
+    # NOTE: This modifies base in place
+    for k, v in vars.items():
+        if k not in base_vars:
+            base_vars[k] = v
+        elif isinstance(v, dict):
+            if isinstance(base_vars[k], dict):
+                _merge_vars(base_vars[k], v)
+            elif base_vars[k] is Ellipsis:
+                # unspecified base, use the passed in var
+                base_vars[k] = v
+            else:
+                raise RuntimeError(f"Var is a dict, base is not: '{k}'")
+        elif isinstance(base_vars[k], dict):
+            raise RuntimeError(f"Base is a dict, var is not: '{k}'")
+        else:
+            # simple overwrite
+            base_vars[k] = v
+    # ensure none of the vars are ellipsis (unset value)
+    for k, v in base_vars.items():
+        if v is Ellipsis:
+            raise RuntimeError(f"Unspecified variable: '{k}'")
 # Base Paths
 # NOTE: pyinstaller will set this to its own executable when building,
 # detect this to use __file__ and main.py redirection instead
@@ -354,3 +375,4 @@ WEBSOCKET_TOPICS: dict[str, dict[str, str]] = {
         "StreamUpdate": "broadcast-settings-update",
     },
 }
+
