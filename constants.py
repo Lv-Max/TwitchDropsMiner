@@ -94,7 +94,7 @@ JsonType = Dict[str, Any]
 URLType = NewType("URLType", str)
 TopicProcess: TypeAlias = "abc.Callable[[int, JsonType], Any]"
 # Values
-BASE_TOPICS = 2
+BASE_TOPICS = 3
 MAX_WEBSOCKETS = 8
 WS_TOPICS_LIMIT = 50
 TOPICS_PER_CHANNEL = 2
@@ -140,7 +140,7 @@ class ClientType:
         "kimne78kx3ncx6brgo4mv6wki5h1ko",
         (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+            "(KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         ),
     )
     MOBILE_WEB = ClientInfo(
@@ -149,31 +149,31 @@ class ClientType:
         [
             (
                 "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; SM-A205U) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; SM-A102U) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; SM-G960U) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; SM-N960U) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; LM-Q720) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
             (
                 "Mozilla/5.0 (Linux; Android 13; LM-X420) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/115.0.5790.166 Mobile Safari/537.36"
+                "(KHTML, like Gecko) Chrome/119.0.6045.66 Mobile Safari/537.36"
             ),
         ]
     )
@@ -182,7 +182,7 @@ class ClientType:
         "kd1unb4b3q4t58fwlpcbzcbnm76a8fp",
         (
             "Dalvik/2.1.0 (Linux; U; Android 7.1.2; SM-G977N Build/LMY48Z) "
-            "tv.twitch.android.app/14.3.2/1403020"
+            "tv.twitch.android.app/16.8.1/1608010"
         ),
     )
     SMARTBOX = ClientInfo(
@@ -190,7 +190,7 @@ class ClientType:
         "ue6666qo983tsx6so1t0vnawi233wa",
         (
             "Mozilla/5.0 (Linux; Android 7.1; Smart Box C1) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+            "(KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         ),
     )
 
@@ -319,6 +319,33 @@ GQL_OPERATIONS: dict[str, GQLOperation] = {
             "sortTypeIsRecency": False,
         },
     ),
+    "NotificationsView": GQLOperation(  # unused, triggers notifications "update-summary"
+        "OnsiteNotifications_View",
+        "f6bdb1298f376539487f28b7f8a6b5d7434ec04ba4d7dc5c232b258410ae04d6",
+        variables={
+            "input": {},
+        },
+    ),
+    "NotificationsList": GQLOperation(  # unused
+        "OnsiteNotifications_ListNotifications",
+        "e709b905ddb963d7cf4a8f6760148926ecbd0eee0f2edc48d1cf17f3e87f6490",
+        variables={
+            "cursor": "",
+            "displayType": "VIEWER",
+            "language": "en",
+            "limit": 10,
+            "shouldLoadLastBroadcast": False,
+        },
+    ),
+    "NotificationsDelete": GQLOperation(
+        "OnsiteNotifications_DeleteNotification",
+        "13d463c831f28ffe17dccf55b3148ed8b3edbbd0ebadd56352f1ff0160616816",
+        variables={
+            "input": {
+                "id": "",  # ID of the notification to delete
+            }
+        },
+    ),
 }
 
 
@@ -363,16 +390,16 @@ class WebsocketTopic:
 
 WEBSOCKET_TOPICS: dict[str, dict[str, str]] = {
     "User": {  # Using user_id
-        "Drops": "user-drop-events",
-        "CommunityPoints": "community-points-user-v1",
         "Presence": "presence",  # unused
-        "Notifications": "onsite-notifications",  # unused
+        "Drops": "user-drop-events",
+        "Notifications": "onsite-notifications",
+        "CommunityPoints": "community-points-user-v1",
     },
     "Channel": {  # Using channel_id
         "Drops": "channel-drop-events",  # unused
-        "CommunityPoints": "community-points-channel-v1",  # unused
         "StreamState": "video-playback-by-id",
         "StreamUpdate": "broadcast-settings-update",
+        "CommunityPoints": "community-points-channel-v1",  # unused
     },
 }
 
